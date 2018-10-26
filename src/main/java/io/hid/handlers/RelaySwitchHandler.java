@@ -10,19 +10,19 @@ public class RelaySwitchHandler  {
     @Path("state")
     @GET
     public String state(){
-        return "";
+        return "N/A";
     }
 
     @Path("on")
     @PUT
     public String on(){
-        return "";
+        return "on";
     }
 
     @Path("off")
     @PUT
     public String off(){
-        return "";
+        return "off";
     }
 
 
