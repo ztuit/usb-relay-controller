@@ -1,7 +1,8 @@
-package io.hid;
+package io.usb;
 
-import io.hid.handlers.DashboardHandler;
-import io.hid.handlers.RelaySwitchHandler;
+import io.usb.handlers.DashboardHandler;
+import io.usb.handlers.RelaySwitchHandler;
+import io.usb.services.SerialComms;
 import io.muserver.Method;
 import io.muserver.MuServer;
 import io.muserver.MuServerBuilder;
@@ -37,8 +38,8 @@ public class App {
     public void start() throws IOException, URISyntaxException {
         logger.info("starting application.");
         MuServer server = MuServerBuilder.httpsServer().withHttpsPort(8081)
-                .addHandler(RestHandlerBuilder.restHandler(new RelaySwitchHandler()).withOpenApiHtmlUrl("api.html"))
-                .addHandler(Method.GET, "/dashboard", new DashboardHandler())
+                .addHandler(RestHandlerBuilder.restHandler(new RelaySwitchHandler(new SerialComms("/dev/tty.wchusbserial1420", "relay-switch.py"))).withOpenApiHtmlUrl("api.html"))
+                .addHandler(Method.GET, "/", new DashboardHandler())
                 .addShutdownHook(true).start();
 
 

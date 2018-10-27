@@ -7,6 +7,28 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <style>
+        .loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+    </style>
 </head>
 <body>
 
@@ -18,22 +40,62 @@
     <strong>Relay Switch</strong>
 </div>
 <div class="d-flex justify-content-center">
-        <button id="off-button" type="button" class="btn btn-dark" style="display:none;" onclick="toggleOn()">off</button>
-        <button id="on-button" type="button" class="btn btn-danger" onclick="toggleOff()">on</button>
+        <button id="off-button" type="button" class="btn btn-dark"  onclick="toggleOn()">off</button>
+        <button id="on-button" type="button" class="btn btn-danger" disabled onclick="toggleOff()">on</button>
 
+</div>
+</br>
+</br>
+<div id="result-success" class="alert alert-success text-center" style="display:none;" role="alert">
+    <strong>result successful</strong>
+</div>
+<div id="result-error" class="alert alert-danger text-center" style="display:none;" role="alert">
+    <strong>Error, switch unavailable</strong>
+</div>
+<div class="container">
+    <div class="row">
+        <div id="loader" class="loader col-md-offset-4  text-center" style="display:none;"></div>
+    </div>
 </div>
 <script>
 
 function toggleOff(){
 
-$("#on-button").toggle();
-$("#off-button").toggle();
+
+doRequest('on');
+
 }
 
 function toggleOn(){
 
-$("#on-button").toggle();
-$("#off-button").toggle();
+doRequest('off');
+
+}
+
+
+function doRequest(cmd){
+
+$("#on-button").prop("disabled", (_, val) => !val);
+$("#off-button").prop("disabled", (_, val) => !val);
+$("#result-success").hide();
+$("#result-error").hide();
+$("#loader").show();
+
+$.ajax({
+    url: '/relay/' + cmd,
+    type: 'PUT',
+    success: function(result) {
+        console.log('switched ' + cmd);
+        var result = JSON.parse(result);
+        $("#loader").hide();
+        if(result.state==='ERROR'){
+            $("#result-error").show();
+        } else {
+            $("#result-success").show();
+        }
+
+    }
+});
 }
 </script>
 </body>
