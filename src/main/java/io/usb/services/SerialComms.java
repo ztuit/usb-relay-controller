@@ -3,8 +3,12 @@ package io.usb.services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 
 public class SerialComms {
@@ -51,17 +55,25 @@ public class SerialComms {
     private synchronized void doSwitch(String cmd){
         Process p = null;
         try {
-            p = Runtime.getRuntime().exec("python " + this.script.getPath() + " " + cmd + " " + this.device);
+            File f = File.createTempFile("relay-switch", "py");
+
+             FileOutputStream fos = new FileOutputStream(f);
+             fos.write(Files.readAllBytes(Paths.get(this.script.toURI())));
+            p = Runtime.getRuntime().exec("python " + f.getPath() + " " + cmd + " " + this.device);
             Thread.sleep(2000);
             if(p.getErrorStream().available()>0){
+                System.out.println("Unavailable " + f.getPath());
                 rs = RelayState.ERROR;
             }
             p.destroy();
-        } catch (IOException e) {
+            f.delete();
+        } catch (Exception e) {
+            System.out.println(e);
             logger.error("",e);
-        } catch (InterruptedException e) {
+            rs = RelayState.ERROR;
+        } /*catch (InterruptedException e) {
             logger.error("",e);
-        }
+        }*/
     }
 
     public static void main(String args[]){
